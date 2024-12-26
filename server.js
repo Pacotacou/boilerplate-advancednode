@@ -11,8 +11,8 @@ const passport = require('passport');
 const {ObjectID} = require('mongodb');
 const LocalStrategy = require('passport-local');
 const bcrypt = require('bcrypt');
-const app = express();
 
+const app = express();
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 
@@ -35,6 +35,19 @@ app.use(passport.session())
 
 myDB(async function(client){
   const myDataBase = await client.db('database').collection('users');
+
+  let currentUsers = 0;
+  io.on('connection',function(socket){
+    console.log('A user has connected');
+    ++currentUsers;
+    io.emit('user count',currentUsers);
+
+    socket.on('disconnect',function(){
+      console.log('A user has disconnected');
+      --currentUsers;
+      io.emit('user count', currentUsers);
+    });
+  });
 
   routes(app, myDataBase);
 
@@ -68,9 +81,7 @@ myDB(async function(client){
 
   auth(app,myDataBase);
 
-  io.on('connection',function(socket){
-    console.log('A user has connected');
-  })
+  
 
 
 }).catch(function(e){
