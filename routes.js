@@ -11,14 +11,25 @@ module.exports = function (app, myDataBase){
     };
 
     app.route('/')
-    .get(function(req, res){
-      res.render('index',{
-        title:"Connected to Database",
-        message:"Please log in",
-        showLogin: true,
-        showRegistration: true
-      });
+        .get(function(req, res){
+        res.render('index',{
+            title:"Connected to Database",
+            message:"Please log in",
+            showLogin: true,
+            showRegistration: true,
+            showSocialAuth: true
+        });
     });
+
+    app.route('/auth/github')
+        .get(
+            passport.authenticate('github')
+        );
+
+    app.route('/auth/github/callback')
+        .get(
+            passport.authenticate('github',{failureRedirect: '/'})
+        );
   
     app.route('/login')
         .post(
@@ -27,8 +38,6 @@ module.exports = function (app, myDataBase){
             res.redirect('/profile');
         }
         );
-
-    
 
     app.route('/logout')
         .get(function(req,res){
