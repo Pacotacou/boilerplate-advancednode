@@ -1,5 +1,7 @@
 'use strict';
 const routes = require('./routes.js');
+const auth = require('./auth.js');
+
 require('dotenv').config();
 const express = require('express');
 const myDB = require('./connection');
@@ -9,8 +11,11 @@ const passport = require('passport');
 const {ObjectID} = require('mongodb');
 const LocalStrategy = require('passport-local');
 const bcrypt = require('bcrypt');
-
 const app = express();
+
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
+
 
 fccTesting(app); //For FCC testing purposes
 app.use('/public', express.static(process.cwd() + '/public'));
@@ -61,6 +66,12 @@ myDB(async function(client){
     });
   }));
 
+  auth(app,myDataBase);
+
+  io.on('connection',function(socket){
+    console.log('A user has connected');
+  })
+
 
 }).catch(function(e){
   app.route('/').get(function(req,res){
@@ -72,6 +83,10 @@ myDB(async function(client){
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+/*app.listen(PORT, () => {
+  console.log('Listening on port ' + PORT);
+});*/
+http.listen(PORT, () => {
   console.log('Listening on port ' + PORT);
 });
+

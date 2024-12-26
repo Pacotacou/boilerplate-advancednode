@@ -1,4 +1,5 @@
 $(document).ready(function () {
+  let socket = io();
   // Form submittion with new message in field with id 'm'
   $('form').submit(function () {
     var messageToSend = $('#m').val();
